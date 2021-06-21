@@ -1,37 +1,25 @@
-## Welcome to GitHub Pages
+---
+tags: dontlink
+sitemap: true
+---
 
-You can use the [editor on GitHub](https://github.com/thaibeouu/dotfiles/edit/master/docs/index.md) to maintain and preview the content for your website in Markdown files.
+# Yggdrasil
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+Yggdrasil is an early-stage implementation of a fully end-to-end encrypted IPv6 network. It is lightweight, self-arranging, supported on multiple platforms, and allows pretty much any IPv6-capable application to communicate securely with other Yggdrasil nodes. Yggdrasil does not require you to have IPv6 Internet connectivity - it also works over IPv4. For more information, see our [about](about.md) page.
 
-### Markdown
+## Project Status
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+The project is currently in the alpha stage. You can expect the occasional breaking change and backwards incompatibility, but Yggdrasil is generally stable for day-to-day use.
 
-```markdown
-Syntax highlighted code block
+Yggdrasil is written in Go. The codebase is fairly small and easy to navigate. It has been tested on a number of platforms (including Linux, Windows, macOS, FreeBSD, OpenBSD and Ubiquiti EdgeRouter). See our [developers](developers.md) page for more info.
 
-# Header 1
-## Header 2
-### Header 3
+A small number of users have been using and stress-testing Yggdrasil quite heavily for a variety of use cases. We have a number of [internal services](services.md) available, contributed and operated by the community.
 
-- Bulleted
-- List
+## Get Involved
 
-1. Numbered
-2. List
+If you are interested in or would like to get involved in the Yggdrasil project, please feel free to join us!
 
-**Bold** and _Italic_ and `Code` text
+- [Install](installation.md) and [configure](configuration.md) Yggdrasil on your own computer or router to join the network.
+- Come and chat to us in our [Matrix channel](https://matrix.to/#/#yggdrasil:matrix.org) (or [read our channel backlog](https://view.matrix.org/room/!DwmKuvGvRKciqyFcxv:matrix.org/))
+- Visit our [GitHub](https://github.com/yggdrasil-network/yggdrasil-go), particularly our [Issues](https://github.com/yggdrasil-network/yggdrasil-go/issues) page, to report problems, help debug, or contribute to the code.
 
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/thaibeouu/dotfiles/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.

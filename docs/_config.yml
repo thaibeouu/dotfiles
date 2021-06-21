@@ -1,1 +1,17 @@
-theme: jekyll-theme-minimal
+name: Yggdrasil
+title: Yggdrasil Network
+description: >
+  End-to-end encrypted IPv6 networking to connect worlds
+
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-sitemap
+  - jekyll-redirect-from
+
+defaults:
+  -
+    scope:
+      path:            "_posts/*.md"
+    values:
+      sitemap:         true
