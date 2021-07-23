@@ -1,7 +1,7 @@
-name: Yggdrasil
-title: Yggdrasil Network
+name: Thai
+title: Thai Vu
 description: >
-  End-to-end encrypted IPv6 networking to connect worlds
+  A homo sapiens
 
 plugins:
   - jekyll-feed

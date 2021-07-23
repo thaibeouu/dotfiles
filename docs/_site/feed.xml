@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2021-07-23T23:51:42+07:00</updated><id>/feed.xml</id><title type="html">Thai Vu</title><subtitle>A homo sapiens
+</subtitle><entry><title type="html">On Ruby Concurrency</title><link href="/2021/07/23/ruby-concurrency.html" rel="alternate" type="text/html" title="On Ruby Concurrency" /><published>2021-07-23T15:00:00+07:00</published><updated>2021-07-23T15:00:00+07:00</updated><id>/2021/07/23/ruby-concurrency</id><content type="html" xml:base="/2021/07/23/ruby-concurrency.html">&lt;h3 id=&quot;the-concurrent-landscape&quot;&gt;The concurrent landscape.&lt;/h3&gt;
+
+&lt;p&gt;MRI, JRuby and TruffleRuby?&lt;/p&gt;
+
+&lt;h4 id=&quot;fiber-thread-and-ractor&quot;&gt;Fiber, Thread and Ractor&lt;/h4&gt;
+&lt;h4 id=&quot;actor-based&quot;&gt;Actor-based&lt;/h4&gt;
+&lt;h4 id=&quot;csp-based&quot;&gt;CSP-based&lt;/h4&gt;</content><author><name>Thai Vu</name></author><summary type="html">The concurrent landscape.</summary></entry></feed>

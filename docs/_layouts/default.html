@@ -7,13 +7,13 @@
     {% seo %}
     {% feed_meta %}
     <link rel="stylesheet" href="/assets/css/style.css">
-    <link rel="alternate" type="application/atom+xml" title="Yggdrasil Network" href="/feed.xml">
+    <link rel="alternate" type="application/atom+xml" title="Thai Vu" href="/feed.xml">
   </head>
   <body>
     <div class="container-lg px-3 my-5 markdown-body">
       <div class='titleflex'>
         <span class='logo'>
-          <a href="/"><img src="/assets/images/logo.svg" alt="Yggdrasil Network" id="logoimg" /></a>
+          <a href="/"><img src="/assets/images/logo.png" alt="Thai Vu" id="logoimg" /></a>
         </span>
         <span class='links'>
           {% for page in site.pages %}
@@ -23,13 +23,12 @@
               {% endunless %}
             {% endif %}
           {% endfor %}
-          <a href='https://github.com/yggdrasil-network/yggdrasil-go'>GitHub</a>
+                <!-- <a href='https://github.com/thaibeouu'>GitHub</a> -->
         </span>
       </div>
       {{ content }}
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
     <script>anchors.add();</script>
-
   </body>
 </html>
