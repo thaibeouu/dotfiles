@@ -1,8 +1,58 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" /><updated>2021-07-23T23:51:42+07:00</updated><id>/feed.xml</id><title type="html">Thai Vu</title><subtitle>A homo sapiens
-</subtitle><entry><title type="html">On Ruby Concurrency</title><link href="/2021/07/23/ruby-concurrency.html" rel="alternate" type="text/html" title="On Ruby Concurrency" /><published>2021-07-23T15:00:00+07:00</published><updated>2021-07-23T15:00:00+07:00</updated><id>/2021/07/23/ruby-concurrency</id><content type="html" xml:base="/2021/07/23/ruby-concurrency.html">&lt;h3 id=&quot;the-concurrent-landscape&quot;&gt;The concurrent landscape.&lt;/h3&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.9.0">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2021-07-24T23:07:13+07:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Thai Vu</title><entry><title type="html">On Ruby Concurrency</title><link href="http://localhost:4000/2021/07/23/ruby-concurrency.html" rel="alternate" type="text/html" title="On Ruby Concurrency" /><published>2021-07-23T15:00:00+07:00</published><updated>2021-07-23T15:00:00+07:00</updated><id>http://localhost:4000/2021/07/23/ruby-concurrency</id><content type="html" xml:base="http://localhost:4000/2021/07/23/ruby-concurrency.html">&lt;h3 id=&quot;the-concurrent-landscape&quot;&gt;The concurrent landscape.&lt;/h3&gt;
 
-&lt;p&gt;MRI, JRuby and TruffleRuby?&lt;/p&gt;
+&lt;p&gt;Along the same lines with other programming languages, there exists many implementations of Ruby itself. 
+The Ruby MRI (Matz’s Ruby Interpreter, or CRuby), while being the &lt;em&gt;de facto&lt;/em&gt; implementation,
+suffers from a limitation: it enforces a lock called GVL (Global Virtual Machine Lock) that prevent
+multiple threads from running Ruby code simultaneously. For those who are not familiar with the context,
+the role of the Ruby VM is to turn interpreter-generated instructions into CPU instructions.
+As the Ruby VM is not thread-safe, the GVL was introduced so that only one thread can access it at the
+same time, thus prevent undesired complications from clashing threads. This kind of locking mechanism is actually
+not exclusive to Ruby, as interpreters from other dynamic languages like Python’s CPython and JavaScript’s V8
+also employ the strategy as one of their design decisions.&lt;/p&gt;
 
+&lt;p&gt;As mentioned above, the use of GVL prevents the “true parallelism” attainable
+through concurrency of a single process with multiple threads. Please check out this
+&lt;a href=&quot;https://johnleach.co.uk/posts/2012/10/15/visualising-the-ruby-global-vm-lock&quot;&gt;blog post&lt;/a&gt; by
+John Leach from 2012 for a practical visualisation on this matter. Some other Ruby implementations
+overcome this limitation by trying to achieve thread-safety without having to introduce GVL by design,
+e.g. &lt;a href=&quot;https://github.com/jruby/jruby&quot;&gt;JRuby&lt;/a&gt; (based on the Java Virtual Machine)
+and &lt;a href=&quot;https://github.com/oracle/truffleruby&quot;&gt;TruffleRuby&lt;/a&gt; (based on Oracle’s GraalVM, hence practically
+JRuby’s sibling), but we will not cover them within the scope of this article.&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Threads can block&lt;/li&gt;
+  &lt;li&gt;Threads are expensive&lt;/li&gt;
+  &lt;li&gt;Threads are not truly parallel, due to the GVL&lt;/li&gt;
+  &lt;li&gt;Executions in each thread are non-deterministic&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-ruby highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;n&quot;&gt;start&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;now&lt;/span&gt;
+
+&lt;span class=&quot;no&quot;&gt;Thread&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# in this thread, we'll have non-blocking fibers&lt;/span&gt;
+  &lt;span class=&quot;no&quot;&gt;Fiber&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;set_scheduler&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Scheduler&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;new&lt;/span&gt;
+
+  &lt;span class=&quot;sx&quot;&gt;%w[2.6 2.7 3.0]&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;each&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;version&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;|&lt;/span&gt;
+    &lt;span class=&quot;no&quot;&gt;Fiber&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;schedule&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;do&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# Runs block of code in a separate Fiber&lt;/span&gt;
+      &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;now&lt;/span&gt;
+      &lt;span class=&quot;c1&quot;&gt;# Instead of blocking while the response will be ready, the Fiber&lt;/span&gt;
+      &lt;span class=&quot;c1&quot;&gt;# will invoke scheduler to add itself to the list of waiting fibers&lt;/span&gt;
+      &lt;span class=&quot;c1&quot;&gt;# and transfer control to other fibers&lt;/span&gt;
+      &lt;span class=&quot;no&quot;&gt;Net&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;::&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;HTTP&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;get&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s1&quot;&gt;'rubyreferences.github.io'&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;/rubychanges/&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;#{&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;version&lt;/span&gt;&lt;span class=&quot;si&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;s2&quot;&gt;.html&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+      &lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'%s: finished in %.3f'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;version&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;no&quot;&gt;Time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;now&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;t&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+  &lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;end&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;join&lt;/span&gt; &lt;span class=&quot;c1&quot;&gt;# At the END of the thread code, Scheduler will be called to dispatch&lt;/span&gt;
+         &lt;span class=&quot;c1&quot;&gt;# all waiting fibers in a non-blocking manner&lt;/span&gt;
+
+&lt;span class=&quot;nb&quot;&gt;puts&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'Total: finished in %.3f'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;%&lt;/span&gt; &lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;no&quot;&gt;Time&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nf&quot;&gt;now&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;-&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;start&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Prints:&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#  2.6: finished in 0.139&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#  2.7: finished in 0.141&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#  3.0: finished in 0.143&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;#  Total: finished in 0.146&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h4 id=&quot;the-rails-concurrency-model&quot;&gt;The Rails concurrency model&lt;/h4&gt;
 &lt;h4 id=&quot;fiber-thread-and-ractor&quot;&gt;Fiber, Thread and Ractor&lt;/h4&gt;
 &lt;h4 id=&quot;actor-based&quot;&gt;Actor-based&lt;/h4&gt;
 &lt;h4 id=&quot;csp-based&quot;&gt;CSP-based&lt;/h4&gt;</content><author><name>Thai Vu</name></author><summary type="html">The concurrent landscape.</summary></entry></feed>

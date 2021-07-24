@@ -12,16 +12,18 @@
 <meta property="og:locale" content="en_US" />
 <meta name="description" content="The concurrent landscape." />
 <meta property="og:description" content="The concurrent landscape." />
+<link rel="canonical" href="http://localhost:4000/2021/07/23/ruby-concurrency.html" />
+<meta property="og:url" content="http://localhost:4000/2021/07/23/ruby-concurrency.html" />
 <meta property="og:site_name" content="Thai Vu" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2021-07-23T15:00:00+07:00" />
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="On Ruby Concurrency" />
 <script type="application/ld+json">
-{"description":"The concurrent landscape.","@type":"BlogPosting","headline":"On Ruby Concurrency","dateModified":"2021-07-23T15:00:00+07:00","url":"/2021/07/23/ruby-concurrency.html","datePublished":"2021-07-23T15:00:00+07:00","mainEntityOfPage":{"@type":"WebPage","@id":"/2021/07/23/ruby-concurrency.html"},"author":{"@type":"Person","name":"Thai Vu"},"@context":"https://schema.org"}</script>
+{"description":"The concurrent landscape.","mainEntityOfPage":{"@type":"WebPage","@id":"http://localhost:4000/2021/07/23/ruby-concurrency.html"},"@type":"BlogPosting","url":"http://localhost:4000/2021/07/23/ruby-concurrency.html","headline":"On Ruby Concurrency","dateModified":"2021-07-23T15:00:00+07:00","datePublished":"2021-07-23T15:00:00+07:00","author":{"@type":"Person","name":"Thai Vu"},"@context":"https://schema.org"}</script>
 <!-- End Jekyll SEO tag -->
 
-    <link type="application/atom+xml" rel="alternate" href="/feed.xml" title="Thai Vu" />
+    <link type="application/atom+xml" rel="alternate" href="http://localhost:4000/feed.xml" title="Thai Vu" />
     <link rel="stylesheet" href="/assets/css/style.css">
     <link rel="alternate" type="application/atom+xml" title="Thai Vu" href="/feed.xml">
   </head>
@@ -49,15 +51,66 @@
         </span>
       </div>
       <h1>On Ruby Concurrency</h1>
-<small>23 July 2021 by Thai Vu
+<small>23 July 2021 | Thai Vu
   </small>
 
 <br />
 
 <h3 id="the-concurrent-landscape">The concurrent landscape.</h3>
 
-<p>MRI, JRuby and TruffleRuby?</p>
+<p>Along the same lines with other programming languages, there exists many implementations of Ruby itself. 
+The Ruby MRI (Matz’s Ruby Interpreter, or CRuby), while being the <em>de facto</em> implementation,
+suffers from a limitation: it enforces a lock called GVL (Global Virtual Machine Lock) that prevent
+multiple threads from running Ruby code simultaneously. For those who are not familiar with the context,
+the role of the Ruby VM is to turn interpreter-generated instructions into CPU instructions.
+As the Ruby VM is not thread-safe, the GVL was introduced so that only one thread can access it at the
+same time, thus prevent undesired complications from clashing threads. This kind of locking mechanism is actually
+not exclusive to Ruby, as interpreters from other dynamic languages like Python’s CPython and JavaScript’s V8
+also employ the strategy as one of their design decisions.</p>
 
+<p>As mentioned above, the use of GVL prevents the “true parallelism” attainable
+through concurrency of a single process with multiple threads. Please check out this
+<a href="https://johnleach.co.uk/posts/2012/10/15/visualising-the-ruby-global-vm-lock">blog post</a> by
+John Leach from 2012 for a practical visualisation on this matter. Some other Ruby implementations
+overcome this limitation by trying to achieve thread-safety without having to introduce GVL by design,
+e.g. <a href="https://github.com/jruby/jruby">JRuby</a> (based on the Java Virtual Machine)
+and <a href="https://github.com/oracle/truffleruby">TruffleRuby</a> (based on Oracle’s GraalVM, hence practically
+JRuby’s sibling), but we will not cover them within the scope of this article.</p>
+
+<ul>
+  <li>Threads can block</li>
+  <li>Threads are expensive</li>
+  <li>Threads are not truly parallel, due to the GVL</li>
+  <li>Executions in each thread are non-deterministic</li>
+</ul>
+
+<div class="language-ruby highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">start</span> <span class="o">=</span> <span class="no">Time</span><span class="p">.</span><span class="nf">now</span>
+
+<span class="no">Thread</span><span class="p">.</span><span class="nf">new</span> <span class="k">do</span> <span class="c1"># in this thread, we'll have non-blocking fibers</span>
+  <span class="no">Fiber</span><span class="p">.</span><span class="nf">set_scheduler</span> <span class="no">Scheduler</span><span class="p">.</span><span class="nf">new</span>
+
+  <span class="sx">%w[2.6 2.7 3.0]</span><span class="p">.</span><span class="nf">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">version</span><span class="o">|</span>
+    <span class="no">Fiber</span><span class="p">.</span><span class="nf">schedule</span> <span class="k">do</span> <span class="c1"># Runs block of code in a separate Fiber</span>
+      <span class="n">t</span> <span class="o">=</span> <span class="no">Time</span><span class="p">.</span><span class="nf">now</span>
+      <span class="c1"># Instead of blocking while the response will be ready, the Fiber</span>
+      <span class="c1"># will invoke scheduler to add itself to the list of waiting fibers</span>
+      <span class="c1"># and transfer control to other fibers</span>
+      <span class="no">Net</span><span class="o">::</span><span class="no">HTTP</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="s1">'rubyreferences.github.io'</span><span class="p">,</span> <span class="s2">"/rubychanges/</span><span class="si">#{</span><span class="n">version</span><span class="si">}</span><span class="s2">.html"</span><span class="p">)</span>
+      <span class="nb">puts</span> <span class="s1">'%s: finished in %.3f'</span> <span class="o">%</span> <span class="p">[</span><span class="n">version</span><span class="p">,</span> <span class="no">Time</span><span class="p">.</span><span class="nf">now</span> <span class="o">-</span> <span class="n">t</span><span class="p">]</span>
+    <span class="k">end</span>
+  <span class="k">end</span>
+<span class="k">end</span><span class="p">.</span><span class="nf">join</span> <span class="c1"># At the END of the thread code, Scheduler will be called to dispatch</span>
+         <span class="c1"># all waiting fibers in a non-blocking manner</span>
+
+<span class="nb">puts</span> <span class="s1">'Total: finished in %.3f'</span> <span class="o">%</span> <span class="p">(</span><span class="no">Time</span><span class="p">.</span><span class="nf">now</span> <span class="o">-</span> <span class="n">start</span><span class="p">)</span>
+<span class="c1"># Prints:</span>
+<span class="c1">#  2.6: finished in 0.139</span>
+<span class="c1">#  2.7: finished in 0.141</span>
+<span class="c1">#  3.0: finished in 0.143</span>
+<span class="c1">#  Total: finished in 0.146</span>
+</code></pre></div></div>
+
+<h4 id="the-rails-concurrency-model">The Rails concurrency model</h4>
 <h4 id="fiber-thread-and-ractor">Fiber, Thread and Ractor</h4>
 <h4 id="actor-based">Actor-based</h4>
 <h4 id="csp-based">CSP-based</h4>
@@ -65,7 +118,5 @@
 
 
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/anchor-js/4.1.0/anchor.min.js" integrity="sha256-lZaRhKri35AyJSypXXs4o6OPFTbTmUoltBbDCbdzegg=" crossorigin="anonymous"></script>
-    <script>anchors.add();</script>
   </body>
 </html>

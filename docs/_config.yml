@@ -1,8 +1,5 @@
 name: Thai
 title: Thai Vu
-description: >
-  A homo sapiens
-
 plugins:
   - jekyll-feed
   - jekyll-seo-tag

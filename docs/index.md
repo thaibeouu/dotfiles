@@ -3,7 +3,11 @@ tags: dontlink
 sitemap: true
 ---
 
-I care about lots of stuff, and write software for a living. Favourite authors: Camus and Chomsky, among others.
+Vũ Hoàng Thái (武黃泰). 
+
+I care about lots of stuff, and write software for a living. 
+
+Favourite authors: Camus, Mishima and Chomsky, among others.
 
 ## Latest posts
 
