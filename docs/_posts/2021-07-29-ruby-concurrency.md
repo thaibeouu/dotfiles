@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "On Ruby Concurrency"
-date:   2021-07-23 08:00:00 -0000
+date:   2021-07-29 08:00:00 -0000
 author: Thai Vu
 ---
 
@@ -24,13 +24,35 @@ John Leach from 2012 for a practical visualisation on this matter. Some other Ru
 overcome this limitation by trying to achieve thread-safety without having to introduce GVL by design,
 e.g. [JRuby](https://github.com/jruby/jruby) (based on the Java Virtual Machine)
 and [TruffleRuby](https://github.com/oracle/truffleruby) (based on Oracle's GraalVM, hence practically
-JRuby's sibling), but we will not cover them within the scope of this article.
+JRuby's sibling), but we will not cover them within the scope of this article. With the MRI's GVL in mind,
+in the next sections we are going to take a look at how Rails handles concurrency by default, the alternative
+models and the prospects.
 
+### Threading and the Rails concurrency model
 
-- Threads can block
-- Threads are expensive
-- Threads are not truly parallel, due to the GVL
-- Executions in each thread are non-deterministic
+Rails use [Puma](https://github.com/puma/puma) as its default web server. Being multi-threaded, Puma handles
+a new HTTP request by utilising the [thread pool](https://en.wikipedia.org/wiki/Thread_pool) from each of its forked process.
+Threads work fine in most cases because each request can be handled
+in a separate thread and usually resources are not needed to be shared between the requests.
+[Sidekiq](https://github.com/mperham/sidekiq) - your favourite job execution gem -
+also employs multiple threads for doing background processing.
+Apart from its apparent offerings, the use of threads also brings out some concerns that are not easy to be addressed:
+
+- Threads in MRI are OS-native ones, which are expensive to create and manage.
+- While multi-threading in MRI still helps with concurrency in general, threads are not truly parallel, due to the GVL. 
+- Executions in each thread are intrinsically non-deterministic. A single thread, without manual
+interference or an effective scheduler, can get stuck and hold the GVL indefinitely, thus blocks other threads.
+
+The Ruby MRI's maintainers have been attempting to tackle the above downsides by introducing non-thread models
+for achieving concurrency, namely an interface for scheduling Ruby fibers and an Actor-like abstraction named Ractor.
+We will do an overview of both shortly.
+
+### What are fibers
+I was surprised to find out that fibers were actually introduced since the MRI 1.9 in 2007, which in retrospective
+felt like a lifetime ago. By [definition](https://ruby-doc.org/core-3.0.2/Fiber.html), fibers are "primitives for 
+implementing light weight cooperative concurrency in Ruby."
+
+#### Fiber scheduler
 
 ```ruby
 start = Time.now
@@ -59,8 +81,4 @@ puts 'Total: finished in %.3f' % (Time.now - start)
 #  Total: finished in 0.146
 ```
 
-#### The Rails concurrency model
-#### Fiber, Thread and Ractor
-#### Actor-based
-#### CSP-based
-
+### Ractor

@@ -1,7 +1,7 @@
 ---
 layout: post
 title:  "Knowing what to test"
-date:   2021-07-20 08:00:00 -0000
+date:   2021-07-23 08:00:00 -0000
 author: Thai Vu
 ---
 
