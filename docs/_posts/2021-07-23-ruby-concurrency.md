@@ -9,8 +9,8 @@ author: Thai Vu
 
 Along the same lines with other programming languages, there exists many implementations of Ruby itself. 
 The Ruby MRI (Matz's Ruby Interpreter, or CRuby), while being the _de facto_ implementation,
-suffers from a limitation: it enforces a lock called GVL (Global Virtual Machine Lock) that prevent
-multiple threads from running Ruby code simultaneously. For those who are not familiar with the context,
+suffers from a limitation: it enforces a lock called GVL (Global Virtual Machine Lock) that prevents
+multiple threads within a process from running Ruby code simultaneously. For those who are not familiar with the context,
 the role of the Ruby VM is to turn interpreter-generated instructions into CPU instructions.
 As the Ruby VM is not thread-safe, the GVL was introduced so that only one thread can access it at the
 same time, thus prevent undesired complications from clashing threads. This kind of locking mechanism is actually
@@ -25,7 +25,6 @@ overcome this limitation by trying to achieve thread-safety without having to in
 e.g. [JRuby](https://github.com/jruby/jruby) (based on the Java Virtual Machine)
 and [TruffleRuby](https://github.com/oracle/truffleruby) (based on Oracle's GraalVM, hence practically
 JRuby's sibling), but we will not cover them within the scope of this article.
-
 
 
 - Threads can block
