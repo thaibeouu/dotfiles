@@ -5,7 +5,7 @@ sitemap: true
 
 Vũ Hoàng Thái (武黃泰). 
 
-I care about lots of stuff, and write software for a living. 
+I care about lots of things, and write software for a living.
 
 Favourite authors: Camus, Mishima and Chomsky, among others.
 
