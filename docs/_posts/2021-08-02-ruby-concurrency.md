@@ -56,7 +56,7 @@ similar to threads in that sense, though the point of fibers is that they are ex
 They stem from the [green threads](https://en.wikipedia.org/wiki/Green_threads)
 model, in which each thread is scheduled by a runtime library (like Go's goroutines) or a VM (like Erlang VM's
 processes) instead of natively by the OS itself. 
-I was surprised to find out that fibers were actually introduced since the CRuby 1.9 in 2007, which
+I was surprised to find out that fibers were actually introduced since CRuby 1.9 in 2007, which
 felt like a lifetime ago.
 Prior to that, CRuby actually employed green threads to handle concurrency, the change to use native threads
 instead was probably due to the more efficient scheduling mechanisms the OS-es offered.
@@ -111,7 +111,8 @@ a mechanism similar to Erlang VM's [reduction counting](http://erlang.org/piperm
 but I am not aware of such libraries for Ruby at the point of writing.
 
 ### Ractors
-Ractors (initially known as Guilds) are fully-isolated (without sharing GVL) alternative to threads.
+[Ractors](https://ruby-doc.org/core-3.0.2/Ractor.html)
+(initially known as Guilds) are fully-isolated (without sharing GVL) alternative to threads.
 The GVL is now held per ractor instead, so ractors are performed in parallel without locking each other.
 To achieve thread-safety without global locking, ractors, in general, cannot access each other's or main program's data.
 To share data with each other, ractors rely on message passing/receiving mechanism,
