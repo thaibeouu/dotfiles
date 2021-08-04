@@ -159,7 +159,8 @@ In theory, ractors can be _the_ perfect answer for Ruby concurrency, with a mode
 ractors, each ractor spawns multiple threads, and each thread multiple fibers.
 However, as ractors are new and unstable, they currently serve as a primer for what is going
 to come in the future from Matz and the CRuby team.
-One challenging design decision from ractors is the introduction of the immutability concept into the
+As ractors cannot access each other's data, one challenging design decision from ractors 
+is the introduction of the immutability concept into the
 language itself, which can prove to be really hard to achieve since practically
 everything in Ruby is mutable by default. We will see.
 
@@ -173,7 +174,7 @@ though it does not support Rails for now and probably in the future as well.
 Polyphony also provides tons of example for you to play with, including an interesting
 [thread-vs.-fiber](https://github.com/digital-fabric/polyphony/blob/master/examples/performance/thread-vs-fiber/compare.rb)
 comparison.
-Ractor as its current state is pretty limited by what it can offer, but there will definitely
+Ractor as its current state is pretty limited by what it can offer, but there will definitely be
 more changes coming from the CRuby team and we will for sure, observe.
 
 Stay safe folks!
